@@ -1,0 +1,3 @@
+# Narrow C-compatible boundary between Engine and Game module, with a generated SDK on top
+
+The Engine and Game modules are both Rust, and Game modules are hot-reloaded dynamic libraries. Rust has no stable ABI, so a layout mismatch across the boundary would corrupt memory silently. We decided that the boundary itself is a narrow C-compatible function table with explicitly laid-out, ID-registered Components. A macro-generated SDK crate on top gives users idiomatic generic Rust, monomorphized inside the Game module. We rejected "same toolchain, plain Rust types across the boundary" because it cannot guarantee correctness, and a pure C-style API because it is too unergonomic for users.

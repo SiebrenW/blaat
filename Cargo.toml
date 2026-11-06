@@ -1,0 +1,12 @@
+[workspace]
+resolver = "3"
+members = ["crates/core", "crates/shaders", "crates/rhi"]
+
+[workspace.package]
+edition = "2024"
+rust-version = "1.85"
+publish = false
+
+[profile.release]
+lto = "thin"
+codegen-units = 1

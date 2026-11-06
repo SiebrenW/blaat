@@ -1,0 +1,3 @@
+# The Engine schedules Game module systems from declared Component access; render and audio are one-way
+
+Game modules register systems with declared Component read and write access, derived from their function signatures. The Engine builds the dependency graph, validates it at load time, and runs non-conflicting systems in parallel across Cells and worker threads. We rejected Game-module-owned scheduling because every module would re-implement it and races would be invisible, and a fixed serial order because it leaves cores idle. Render and audio threads only consume state that the game thread presents through a queue or context, and Game modules cannot read results back from them. A read-back path is added only when a concrete use case needs one.

@@ -1,0 +1,6 @@
+[package]
+name = "engine-shaders"
+version = "0.0.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true

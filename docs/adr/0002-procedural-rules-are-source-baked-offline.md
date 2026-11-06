@@ -1,0 +1,3 @@
+# Procedural rules are the editor's source of truth and are baked offline
+
+The Engine's procedural environment editor stores Procedural rules as source data, with hand edits kept as Overrides on top. A Bake turns them into static Cell data, and the shipped game never evaluates Procedural rules. We chose this over runtime generation because performance and memory are the top priority, and virtual texturing, virtual geometry, and baked lighting all assume offline-prepared data. We chose it over a one-shot brush model because that would force authors to lose hand edits whenever they changed a rule such as forest density. Rules can be marked runtime-evaluated later without redesigning Cells.

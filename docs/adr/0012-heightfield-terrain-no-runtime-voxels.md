@@ -1,0 +1,3 @@
+# Terrain is a per-Cell heightfield; overhangs and caves are placed meshes; no runtime voxels
+
+Terrain is a 2.5D heightfield per Cell, shaded through virtual texturing, with cliffs, overhangs, and cave entrances as mesh Assets placed on top and rendered by virtual geometry. We chose this because a heightfield is the cheapest representation per square metre, which fits the memory priority and a large forest-in-mountains World, and it works directly with Procedural rules and Overrides. We rejected runtime voxel terrain because it conflicts with the baked, static design (ADR 0002). An authoring-only volume layer that the Bake converts to meshes remains a possible later addition, because its output would use the same runtime format; it is not part of the first target.

@@ -1,0 +1,3 @@
+# Skinned characters use a conventional skinning pipeline; virtual geometry is for static content
+
+Virtual geometry's cluster hierarchy, bounds, and streaming are precomputed for static meshes and stop being valid when vertices animate. Characters therefore use GPU skinning with a discrete LOD chain, drawn through a separate path and composited into the same visibility or G-buffer as virtual geometry, so shading, SSGI, and AA do not care which path produced a pixel. We rejected skinned virtual geometry as research-grade and too costly for the floor GPU. Pre-skinned clusters for distant crowds remain a possible later optimization.

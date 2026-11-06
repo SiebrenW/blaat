@@ -1,0 +1,3 @@
+# The Editor UI is built on egui; Game UI is a separate custom retained-mode system
+
+The Editor is dev-only and changes often, so it uses egui, with a backend that renders egui's output through the Engine's own graphics layer (ADR 0015). Game UI ships with games and must be retained-mode, cheap per frame, and styleable by artists, so it is a separate custom system and shares no code with the Editor's interface. We rejected one UI system for both because immediate-mode egui does not fit shipped HUD and menu needs, and a custom retained-mode toolkit would be a large cost to build for tooling nobody ships. The cost accepted is two UI systems, and the egui render backend has to be written against the Engine's graphics layer.

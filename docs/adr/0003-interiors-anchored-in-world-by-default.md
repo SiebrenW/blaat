@@ -1,0 +1,3 @@
+# Interiors are anchored in the World's coordinates by default, with opt-in remote portals
+
+Each Interior is placed inside its house's footprint in the World, so windows, line of sight, AI senses, and physics rays work without portal-aware logic, and Interior tiers can stream by proximity. We rejected separate-space Interiors as the default because they would make rendering, sight, and physics portal-aware everywhere. A Remote portal is available as an opt-in for Interiors that must differ from their footprint, such as a larger quest space or a swapped layout, because medieval house footprints are often too small for gameplay.

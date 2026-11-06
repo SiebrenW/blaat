@@ -1,0 +1,5 @@
+# Virtual geometry has a compute-driven baseline; mesh shaders are optional
+
+The Engine's hardware floor includes GPUs without mesh shader support, such as the Vega-class integrated GPU in a Ryzen 7 3700U laptop, which the author uses as a real test machine. Virtual geometry therefore has a compute-driven path that every supported GPU can run, and a mesh shader path may be added as an optional acceleration on hardware that has them. We rejected a mesh-shader-only floor because it would exclude a machine the author needs to run on. The cost is a larger and more complex renderer than a single path, which is accepted deliberately.
+
+The compute path requires 64-bit integer atomics, specifically a 64-bit atomic max for packing depth and cluster ID in the visibility buffer. This was verified on the floor GPU (Vega 10 under Vulkan, Mesa RADV: `shaderBufferInt64Atomics` true). Apple silicon therefore needs an M2 or newer, which has 64-bit min/max only. M1 is not supported, because it has no 64-bit atomics. Windows D3D12 support on Vega (SM 6.6) is not yet verified.

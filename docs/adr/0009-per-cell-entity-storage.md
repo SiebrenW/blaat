@@ -1,0 +1,3 @@
+# Entity storage is partitioned per Cell, with the baked file layout matching the runtime layout
+
+Each Cell, Interior, and the World owns a self-contained block of Entity data, so unloading a Cell frees a block with no per-Entity work and loading a baked Cell is close to a memory-map. We rejected one global store because Cell streaming is the dominant memory event in an open world and per-Entity unload cost and fragmentation conflict with the performance priority. Cross-block iteration and moving an Entity between Cells cost a little more, which is accepted because they are rare next to per-frame work. Baked data is never migrated at load: a Component schema change means a re-Bake. Save games are the only data migrated at load, because they cannot be re-baked.

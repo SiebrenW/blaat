@@ -1,0 +1,63 @@
+name: ci
+on: [push, pull_request]
+
+env:
+  SLANG_VERSION: "2026.21"
+  DXC_URL: https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.9.2609/dxc_2026_09_29.zip
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: macos-14, slang: macos-aarch64 }
+          - { os: ubuntu-24.04, slang: linux-x86_64 }
+          - { os: windows-2025, slang: windows-x86_64 }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Install Slang
+        shell: bash
+        run: |
+          curl -fsSL -o slang.zip "https://github.com/shader-slang/slang/releases/download/v${SLANG_VERSION}/slang-${SLANG_VERSION}-${{ matrix.slang }}.zip"
+          mkdir "$RUNNER_TEMP/slang"
+          tar -xf slang.zip -C "$RUNNER_TEMP/slang"
+          echo "$RUNNER_TEMP/slang/bin" >> "$GITHUB_PATH"
+      - name: Install Metal toolchain (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          xcrun -f metal >/dev/null 2>&1 || xcodebuild -downloadComponent MetalToolchain
+          xcrun -f metal
+      - name: Install DXC next to Slang (Windows, for DXIL)
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          curl -fsSL -o dxc.zip "$DXC_URL"
+          mkdir "$RUNNER_TEMP/dxc"
+          tar -xf dxc.zip -C "$RUNNER_TEMP/dxc"
+          cp "$RUNNER_TEMP"/dxc/bin/x64/dxcompiler.dll "$RUNNER_TEMP"/dxc/bin/x64/dxil.dll "$RUNNER_TEMP/slang/bin/"
+      - run: slangc -version
+      - name: Install software Vulkan (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mesa-vulkan-drivers vulkan-validationlayers libvulkan1
+      # Only the Linux job runs the RHI tests: it has lavapipe, a software Vulkan device. The other
+      # runners have no GPU we can rely on (hosted macOS runners are virtualized M1s, which also
+      # lack 64-bit atomics), so they only check that the RHI compiles. Metal and MoltenVK are
+      # exercised on developer machines.
+      - name: Test (Linux, with Vulkan validation)
+        if: runner.os == 'Linux'
+        env:
+          RHI_VALIDATION: "1"
+        run: cargo test --workspace
+      - name: Test (no GPU)
+        if: runner.os != 'Linux'
+        run: |
+          cargo test --workspace --exclude engine-rhi
+          cargo build -p engine-rhi --all-targets
+      - name: Measurement harness smoke run
+        run: cargo run --release -p engine-core --example spin
